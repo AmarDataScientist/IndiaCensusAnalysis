@@ -1,0 +1,141 @@
+#####  Asymptotic Analysis - Assignment 1 – PS3 - [India Census] - Group 219 #######
+
+Group Members :
+=============
+AMAR JOSHI
+KUSAM PHANI SINDHU
+SAI CHANDRA SEKHAR MBRNV
+
+Analysis :
+========
+
+Asymptotic analysis refers to the computing of the running time of any piece 
+of code or the operation in a mathematical unit of a computation. Its operation is 
+computed in terms of a function like f(n).
+
+The time required by the algorithm falls under the three types: 
+	Worst case - Maximum time required by an algorithm and it is mostly 
+				used or done while analyzing the algorithm. 
+	Best case - Minimum time required for the algorithm or piece of code 
+				and it is not normally calculated while analyzing the algorithm. 
+	Average case - Average time required for an algorithm or portion of code 
+				and it is sometimes done while analyzing the algorithm.
+				
+
+In our problem, we have below function
+
+        def readInputData(self):
+        """
+        Reads data from file and creates relevant dictionaries containing data
+        :return: int
+            number of records in the file
+        """
+        try:
+            # reading input file and creating dataframe
+            df = pd.DataFrame()
+            with open(self.input_file) as f:
+                for line in f:
+                    lsplit = line.split(",")
+                    dateOfBirth = lsplit[2]
+                    sp = pd.Series(lsplit)
+                    dateOfDeath = lsplit[3]
+                    # print(dateOfDeath)
+                    d2 = {'ID': pd.Series(sp[0]),
+                          'Name': pd.Series(sp[1]),
+                          'Date of Birth': pd.Series(sp[2]),
+                          'Date of Death': pd.Series(sp[3]),
+                          'YrOfBirth': pd.Series(dateOfBirth.split("-")[2])}
+                    if len(dateOfDeath.strip()) > 0:
+                        d2['YrOfDeath'] = pd.Series(dateOfDeath.split("-")[2].strip())
+                    df_temp = pd.DataFrame(data=d2)
+                    df = df.append(df_temp, sort=False)
+
+            if df.empty:
+                return 0
+            else:
+                minYrOfBirth = df['YrOfBirth'].min()
+                maxYrOfBirth = df['YrOfBirth'].max()
+
+                c = 0
+                for yr in range(int(minYrOfBirth), int(maxYrOfBirth) + 1, 1):
+                    c = list(df['YrOfBirth']).count(str(yr))
+                    self.dict_noOfBirth[str(yr)] = c
+
+                maxYrOfDeath = df.iloc[:, 5].dropna().max()
+                minYrOfDeath = df.iloc[:, 5].dropna().min()
+
+                d = 0
+                for yr in range(int(minYrOfDeath), int(maxYrOfDeath) + 1, 1):
+                    d = list(df.iloc[:, 5]).count(str(yr))
+                    self.dict_noOfDeaths[str(yr)] = d
+
+                minYear = min(minYrOfBirth, minYrOfDeath)
+                maxYear = max(maxYrOfBirth, maxYrOfDeath)
+
+                sum = 0
+                for yr in range(int(minYear), int(maxYear) + 1, 1):
+                    sum = sum + self.dict_noOfBirth.get(str(yr), 0) - self.dict_noOfDeaths.get(str(yr), 0)
+                    self.dict_noOfAlive[str(yr)] = sum
+
+                return df.shape[0]
+        except FileNotFoundError as fnf_error:
+            self.printOutput(fnf_error)
+        except AssertionError as error:
+            self.printOutput(error)
+
+The complexity of above method is O(N), because there are no nested loops and all operations loop
+number of records present in the input file.
+
+In our class, we have another method,
+
+	    def readFromPromptsFile(self):
+        """
+            Reads data from prompts file and print relevant data
+        """
+        try:
+            with open(self.prompts_file) as g:
+                for line in g:
+                    key = line.split(":")[0].strip().upper()
+                    value = line.split(":")[1].strip()
+
+                    # To find number of people died in given year
+                    if key == "bornin".upper():
+                        str_to_print = self.countBorn(self.dict_noOfBirth, value)
+                        self.printOutput(str_to_print)
+
+                    # To find number of people died in given year
+                    if key == "diedin".upper():
+                        str_to_print = self.countDied(self.dict_noOfDeaths, value)
+                        self.printOutput(str_to_print)
+
+                    # To find year with max population
+                    if key == "maxPopulation".upper():
+                        str_to_print = self.maxPop(self.dict_noOfAlive)
+                        self.printOutput(str_to_print)
+
+                    # To find year with min population
+                    if key == "minPopulation".upper():
+                        str_to_print = self.minPop(self.dict_noOfAlive)
+                        self.printOutput(str_to_print)
+
+                    # To find year with max birth
+                    if key == "maxBirth".upper():
+                        str_to_print = self.maxBirth(self.dict_noOfBirth)
+                        self.printOutput(str_to_print)
+
+                    # To find year with max deaths
+                    if key == "maxDeath".upper():
+                        str_to_print = self.maxDeath(self.dict_noOfDeaths)
+                        self.printOutput(str_to_print)
+        except FileNotFoundError as fnf_error:
+            self.printOutput(fnf_error)
+        except AssertionError as error:
+            self.printOutput(error)
+			
+The complexity of above method is O(N), because there are no nested loops and all operations loop for
+number of records present in the prompts file.
+
+
+
+		
+	
